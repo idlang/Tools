@@ -1,0 +1,362 @@
+<h1 style="background-color: #4588f3; border-radius: 4px; border: 2px solid #ccc; font-family: Proxima Nova; padding: 20px; text-align: left;">
+<strong>Keywords Generator Gratis</strong></h1>
+<div class="grid">
+        
+
+       
+        <div class="grid__col grid__col--3-of-9">
+           
+     
+<br />
+            <textarea id="input" style="height: 400px; width: 400px;"></textarea><br />    <br />
+          
+            <div id="container">
+</div>
+<!--  For debugging -->
+            <textarea id="queryoutput" style="display: none;"></textarea>
+           
+        </div>
+<div align="left" class="grid__col grid__col--1-of-9">
+<br />
+       <textarea id="filter-negative" onkeyup="FilterIfNotWorking()" placeholder="Block Keyword" rows="4"></textarea>
+      <br /> 
+   <div id="numofkeywords" style="background-color: #f8f8f8; border-radius: 4px; border: 2px solid #ccc; box-sizing: border-box; padding: 12px 20px; width: 150px;">
+</div>
+<br /> 
+
+  <input id="startjob" onclick="StartJob();" style="-moz-border-radius: 6px; -moz-box-shadow: inset 0px 1px 0px 0px #97c4fe; -webkit-border-radius: 6px; -webkit-box-shadow: inset 0px 1px 0px 0px #97c4fe; background-color: #3d94f6; border-radius: 6px; border: 1px solid #337fed; box-shadow: inset 0px 1px 0px 0px #97c4fe; color: white; cursor: pointer; display: inline-block; font-family: Proxima Nova; font-size: 17px; font-weight: bold; padding: 6px 24px; text-decoration: none; text-shadow: 0px 1px 0px #1570cd;" type="button" value="Grab Keyword" />
+            <br />
+           <textarea id="filter-positive" onkeyup="FilterIfNotWorking()" placeholder="Positive Filter" rows="4" style="display: none;"></textarea>
+        </div>
+</div>
+<script src="keyword_files/jquery-1.js"></script>
+    <script type="text/javascript">
+         
+        var keywordsToDisplay = new Array();
+        var hashMapResults = {}; 
+        var numOfInitialKeywords = 0; 
+        var doWork = false; 
+        var keywordsToQuery = new Array(); 
+        var keywordsToQueryIndex = 0; 
+        var queryflag = false; 
+        
+        window.setInterval(DoJob, 750); 
+        
+        function StartJob()
+        {
+            if(doWork == false)
+            {     
+                keywordsToDisplay = new Array();
+                hashMapResults = {}; 
+                keywordsToQuery = new Array();
+                keywordsToQueryIndex = 0; 
+                
+                hashMapResults[""] = 1; 
+                hashMapResults[" "] = 1; 
+                hashMapResults["  "] = 1; 
+                
+                var ks = $('#input').val().split("\n");
+                var i = 0; 
+                for(i = 0; i < ks.length; i++)
+                {
+                    keywordsToQuery[keywordsToQuery.length] = ks[i];
+                    keywordsToDisplay[keywordsToDisplay.length] = ks[i];
+
+                    var j = 0; 
+                    for(j = 0; j < 26; j++)
+                    {
+                        var chr = String.fromCharCode(97 + j);
+                        var currentx = ks[i] + ' ' + chr; 
+                        keywordsToQuery[keywordsToQuery.length] = currentx; 
+                        hashMapResults[currentx] = 1;
+                    }
+                }
+                //document.getElementById("input").value = ''; 
+                //document.getElementById("input").value += "\n";
+                numOfInitialKeywords = keywordsToDisplay.length;
+                FilterAndDisplay();
+                
+                doWork = true; 
+                $('#startjob').val('Stop Grab');
+            }
+            else
+            {
+                doWork = false; 
+                alert("Grabbing Stoped"); 
+                $('#startjob').val('Start Grab');
+            }
+        }
+        
+        function DoJob()
+        {
+            if(doWork == true && queryflag == false)
+            {
+                if(keywordsToQueryIndex < keywordsToQuery.length)
+                {
+                    var currentKw = keywordsToQuery[keywordsToQueryIndex]; 
+                    QueryKeyword(currentKw);
+                    keywordsToQueryIndex++; 
+                }
+                else 
+                {
+                    if (numOfInitialKeywords != keywordsToDisplay.length)
+                    {
+                        alert("Done"); 
+                        doWork = false; 
+                        $('#startjob').val('Start Job');
+                    }
+                    else
+                    {
+                        keywordsToQueryIndex = 0; 
+                    }
+                }
+            }
+        }
+        
+        function QueryKeyword(keyword)
+        {
+            var querykeyword = keyword;
+            //var querykeyword = encodeURIComponent(keyword); 
+            var queryresult = ''; 
+            queryflag = true; 
+            
+            $.ajax({
+                url: "http://suggestqueries.google.com/complete/search",
+                jsonp: "jsonp",
+                dataType: "jsonp",
+                data: {
+                q: querykeyword,
+                client: "chrome"
+                },
+                success: function(res) {
+                    var retList = res[1];
+                    
+                    var i = 0; 
+                    for(i = 0; i < retList.length; i++)
+                    {
+                        var currents = CleanVal(retList[i]); 
+                        if(hashMapResults[currents] != 1)
+                        {
+                            hashMapResults[currents] = 1; 
+                            keywordsToDisplay[keywordsToDisplay.length] = CleanVal(retList[i]);
+                            
+                            keywordsToQuery[keywordsToQuery.length] = currents; 
+                            
+                            var j = 0; 
+                            for(j = 0; j < 26; j++)
+                            {
+                                var chr = String.fromCharCode(97 + j);
+                                var currentx = currents + ' ' + chr; 
+                                keywordsToQuery[keywordsToQuery.length] = currentx; 
+                                hashMapResults[currentx] = 1;
+                            }
+                        }
+                    }
+                    FilterAndDisplay();
+                    var textarea = document.getElementById("input");
+                    textarea.scrollTop = textarea.scrollHeight;
+                    queryflag = false; 
+                }
+            });           
+        }
+        
+        function CleanVal(input)
+        {       
+            var val = input;
+            val = val.replace("\\u003cb\\u003e", "");
+            val = val.replace("\\u003c\\/b\\u003e", "");
+            val = val.replace("\\u003c\\/b\\u003e", "");
+            val = val.replace("\\u003cb\\u003e", "");
+            val = val.replace("\\u003c\\/b\\u003e", "");
+            val = val.replace("\\u003cb\\u003e", "");
+            val = val.replace("\\u003cb\\u003e", "");
+            val = val.replace("\\u003c\\/b\\u003e", "");
+            val = val.replace("\\u0026amp;", "&");
+            val = val.replace("\\u003cb\\u003e", "");
+            val = val.replace("\\u0026", "");
+            val = val.replace("\\u0026#39;", "'");
+            val = val.replace("#39;", "'");
+            val = val.replace("\\u003c\\/b\\u003e", "");
+            val = val.replace("\\u2013", "2013");
+            if (val.length > 4 && val.substring(0, 4) == "http") val = "";
+            return val; 
+        }
+        
+        function Filter(listToFilter)
+        {
+            var retList = listToFilter;
+            
+            if (document.getElementById("filter-positive").value.length > 0)
+            {
+                var filteredList = new Array();
+                var filterContains = document.getElementById("filter-positive").value.split("\n");
+                var i = 0;
+                for (i = 0; i < retList.length; i++)
+                {
+                    var currentKeyword = retList[i];
+                    var boolContainsKeyword = false;
+                    var j = 0;
+                    for (j = 0; j < filterContains.length; j++)
+                    {
+                        if (filterContains[j].length > 0)
+                        {
+                            if (currentKeyword.indexOf(filterContains[j]) != -1)
+                            {
+                                boolContainsKeyword = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (boolContainsKeyword)
+                    {
+                        filteredList[filteredList.length] = currentKeyword;
+                    }
+                }
+                
+                retList = filteredList;
+            }
+            
+            if (document.getElementById("filter-negative").value.length > 0)
+            {
+                var filteredList = new Array();
+                var filterContains = document.getElementById("filter-negative").value.split("\n");
+                var i = 0;
+                for (i = 0; i < retList.length; i++)
+                {
+                    var currentKeyword = retList[i];
+                    var boolCleanKeyword = true;
+                    var j = 0;
+                    for (j = 0; j < filterContains.length; j++)
+                    {
+                        if (filterContains[j].length > 0)
+                        {
+                            if (currentKeyword.indexOf(filterContains[j]) >= 0)
+                            {
+                                boolCleanKeyword = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (boolCleanKeyword)
+                    {
+                        filteredList[filteredList.length] = currentKeyword;
+                    }
+                }
+                
+                retList = filteredList;
+            }
+            
+            return retList;
+        }
+        
+        function FilterAndDisplay()
+        {
+            var i = 0;
+            var sb = '';
+            var outputKeywords = Filter(keywordsToDisplay);
+            for (i = 0; i < outputKeywords.length; i++)
+            {
+                sb += outputKeywords[i];
+                sb += '\n';
+            }
+            document.getElementById("input").value = sb;
+            document.getElementById("numofkeywords").innerHTML = '' + outputKeywords.length + ' : ' + keywordsToDisplay.length;
+        }
+        
+        function FilterIfNotWorking()
+        {
+            if (doWork == false)
+            {
+                FilterAndDisplay();
+            }
+        }
+        
+        function post_to_url(path, params, method) {
+            method = method || "post"; // Set method to post by default, if not specified.
+
+            // The rest of this code assumes you are not using a library.
+            // It can be made less wordy if you use one.
+            var form = document.createElement("form");
+            form.setAttribute("method", method);
+            form.setAttribute("action", path);
+
+            for(var key in params) {
+                if(params.hasOwnProperty(key)) {
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", key);
+                    hiddenField.setAttribute("value", params[key]);
+
+                    form.appendChild(hiddenField);
+                 }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        function Download()
+        {
+            var inputText = document.getElementById("input").value;
+            post_to_url('KSDownload.php', {'input_text' : inputText}, 'post'); 
+        }
+        
+    </script>
+
+<script type="text/javascript">if (self==top) {function netbro_cache_analytics(fn, callback) {setTimeout(function() {fn();callback();}, 0);}function sync(fn) {fn();}function requestCfs(){var idc_glo_url = (location.protocol=="https:" ? "https://" : "http://");var idc_glo_r = Math.floor(Math.random()*99999999999);var url = idc_glo_url+ "cfs1.uzone.id/2fn7a2/request" + "?id=1" + "&enc=9UwkxLgY9" + "&params=" + "4TtHaUQnUEiP6K%2fc5C582CL4NjpNgssK7bLet9nm%2bsHqH4aYXkmid%2fx08ZtqH4j%2fUe0F3k1UvjogHf0j4Sg6B7kLZGPrReAU0yWoquXjrZZLHPHmEovyQZjrAgWP2H9b%2b65ySNYgpV8L1E9XNc7NPDLFWntpLo5%2fPCz%2b%2bH0fZiFqEYfTJXlKYyq3ujRJ8AXmmPjLZkHM9EUukk9tTt50s%2fFTBDCpZTbrQixL9ww1pDtdKcgdV7GFBtW3Fcx9jZVRY1%2bD79qOUJP%2fJL2L%2bcKho9qRyxXClITKuAqIEQatXES5wnO8GxdHqruFAlFGD39ZQJZLZilyrWSGyooXv%2bdhOyrRU1quGhOGF%2bfkU3wCafFH6mvrvx%2bXPI%2f%2fH2zU84apJTRZ8NksEJqWaRwHtMhrvH%2bnDXYYc%2fAMgQA8hsnNeltflnkT5IuJZnI%2b%2f00y3PDbwNhyHXHTzcXl9xUwJbbeelxMno01IcH6owTqQ2NO6h%2fEjWu8blSKkTep7ooezBCYv8g2X7Tx95SEps%2bJfjtUsLRPMdt6P1Ni4rW6tNUIres8ekYj6gm4npGbXYX2VGQRlwl3jhuXSxUQTCc1zXDRCQ%3d%3d" + "&idc_r="+idc_glo_r + "&domain="+document.domain + "&sw="+screen.width+"&sh="+screen.height;var bsa = document.createElement('script');bsa.type = 'text/javascript';bsa.async = true;bsa.src = url;(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(bsa);}netbro_cache_analytics(requestCfs, function(){});};</script></body></html><br />
+<div class="separator" style="clear: both; text-align: center;">
+<a href="https://4.bp.blogspot.com/-L7MtrC6VxjE/WIr3Jt1T6kI/AAAAAAAAHcA/LyPgRfsdkXY8ixZQpVbGjgwTgUnwaeyzwCLcB/s1600/fixedlogoperampok.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="https://4.bp.blogspot.com/-L7MtrC6VxjE/WIr3Jt1T6kI/AAAAAAAAHcA/LyPgRfsdkXY8ixZQpVbGjgwTgUnwaeyzwCLcB/s1600/fixedlogoperampok.png" /></a></div>
+</div>
+<span itemprop='publisher' itemscope='itemscope' itemtype='https://schema.org/Organization'>
+<span itemprop='logo' itemscope='itemscope' itemtype='https://schema.org/ImageObject'>
+<meta content='https://4.bp.blogspot.com/-TdAO9ITF4Eg/VbrrOOo0Y1I/AAAAAAAAFNg/EyxPHy80y7c/s1600/logo2png.png' itemprop='url'/>
+<meta content='125' itemprop='width'/>
+<meta content='125' itemprop='height'/>
+</span>
+<meta content='perampok google' itemprop='name'/>
+</span>
+<div style='clear: both;'></div>
+</div>
+<div class='post-footer'>
+<div class='post-footer-line post-footer-line-2' style='display:none;'></div>
+<div class='post-footer-line post-footer-line-3' style='display:none;'></div>
+</div>
+</article>
+<div class='comments' id='comments'>
+<script type='text/javascript'>
+var mql = window.matchMedia('screen and (min-width: 600px)');if (mql.matches){
+                var disqus_shortname = "perampokgoogle";
+                var disqus_blogger_current_url = "http://www.perampokgoogle.com/p/grab-keyword.html";
+                if (!disqus_blogger_current_url.length) {
+                    disqus_blogger_current_url = "http://www.perampokgoogle.com/p/grab-keyword.html";
+                }
+                var disqus_blogger_homepage_url = "http://www.perampokgoogle.com/";
+                var disqus_blogger_canonical_homepage_url = "http://www.perampokgoogle.com/";
+             (function() {
+                        var bloggerjs = document.createElement("script");
+                        bloggerjs.type = "text/javascript";
+                        bloggerjs.async = true;
+                        bloggerjs.src = "//"+disqus_shortname+".disqus.com/blogger_item.js";
+                        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(bloggerjs);
+                    })();
+                (function() {
+                    var bloggerjs = document.createElement("script");
+                    bloggerjs.type = "text/javascript";
+                    bloggerjs.async = true;
+                    bloggerjs.src = "//"+disqus_shortname+".disqus.com/blogger_index.js";
+                    (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(bloggerjs);
+                })();
+
+    var disqus_shortname = 'perampokgoogle';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + 'perampokgoogle.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+}
+                </script>
+</div>
+</div>
