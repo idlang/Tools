@@ -1,0 +1,38 @@
+{
+  "name": "SpaceNesia",
+  "short_name": "SpaceNesia",
+  "start_url": ":https://spacenesia.blogspot.com",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#2B0C93",
+  "description": "Telusuri Angkasa",
+  "icons": [{
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s48/logo.webp",
+    "sizes": "48x48",
+    "type": "image/png"
+  }, {
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s72/logo.webp",
+    "sizes": "72x72",
+    "type": "image/png"
+  }, {
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s96/logo.webp",
+    "sizes": "96x96",
+    "type": "image/png"
+  }, {
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s144/logo.webp",
+    "sizes": "144x144",
+    "type": "image/png"
+  }, {
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s168/logo.webp",
+    "sizes": "168x168",
+    "type": "image/png"
+  }, {
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s192/logo.webp",
+    "sizes": "192x192",
+    "type": "image/png"
+  }, {
+    "src": "https://1.bp.blogspot.com/-89pY0zsvCzA/XJEwuGkSd3I/AAAAAAAABgE/RfUV3sALSNYzPIVNtrT1Lqvum7-Oe_ufgCLcBGAs/s512/logo.webp",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+}
